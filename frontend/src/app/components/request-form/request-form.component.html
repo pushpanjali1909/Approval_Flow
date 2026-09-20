@@ -1,0 +1,212 @@
+<div class="page-container">
+  <!-- Back Link & Header -->
+  <div class="header-nav">
+    <a [routerLink]="isEditMode && requestId ? ['/requests', requestId] : ['/requests']" class="back-link">
+      ← Back to {{ isEditMode ? 'Request Details' : 'Requests' }}
+    </a>
+  </div>
+
+  <div class="form-header">
+    <h1 class="page-title">{{ isEditMode ? 'Edit Approval Request' : 'Create Approval Request' }}</h1>
+    <p class="page-subtitle">
+      {{ isEditMode ? 'Update request details and line items. Changes will recalculate totals.' : 'Fill in the request details and add line items. Submitting locks the request.' }}
+    </p>
+  </div>
+
+  <!-- Loading State (during fetch for edit) -->
+  <div *ngIf="isLoading" class="loading-state">
+    <div class="spinner"></div>
+    <p>Loading request details...</p>
+  </div>
+
+  <!-- Block Editing Banner for Non-Editable Requests -->
+  <div *ngIf="!isLoading && isEditMode && existingRequest && existingRequest.status !== 'Editable'" class="locked-card">
+    <div class="locked-icon">🔒</div>
+    <h3 class="locked-title">Request Cannot Be Modified</h3>
+    <p class="locked-message">
+      This request is currently in <strong>{{ existingRequest.status }}</strong> status.
+      Only requests with <strong>Editable</strong> status can be edited.
+    </p>
+    <a [routerLink]="['/requests', existingRequest.id]" class="btn btn-primary mt-3">
+      View Request Details
+    </a>
+  </div>
+
+  <!-- Messages -->
+  <div *ngIf="errorMessage && (!existingRequest || existingRequest.status === 'Editable')" class="alert alert-danger">
+    {{ errorMessage }}
+  </div>
+  <div *ngIf="successMessage" class="alert alert-success">
+    {{ successMessage }}
+  </div>
+
+  <!-- Request Form -->
+  <form 
+    *ngIf="!isLoading && (!isEditMode || (existingRequest && existingRequest.status === 'Editable'))" 
+    (ngSubmit)="onSubmit()" 
+    class="form-card" 
+    novalidate>
+
+    <!-- General Info Section -->
+    <div class="form-section">
+      <h2 class="section-title">General Information</h2>
+
+      <div class="form-grid">
+        <!-- Title Field -->
+        <div class="form-group">
+          <label for="reqTitle" class="form-label">
+            Title <span class="required">*</span>
+          </label>
+          <input 
+            type="text" 
+            id="reqTitle" 
+            class="form-control" 
+            placeholder="e.g. Office Equipment, Team Laptops"
+            [(ngModel)]="title" 
+            name="title"
+            [class.is-invalid]="formSubmitted && !title.trim()"
+            required
+          />
+          <div *ngIf="formSubmitted && !title.trim()" class="invalid-feedback">
+            Title is required.
+          </div>
+        </div>
+
+        <!-- Requester Field -->
+        <div class="form-group">
+          <label for="reqRequester" class="form-label">
+            Requester Name <span class="required">*</span>
+          </label>
+          <input 
+            type="text" 
+            id="reqRequester" 
+            class="form-control" 
+            placeholder="e.g. John Doe, Sarah Connor"
+            [(ngModel)]="requester" 
+            name="requester"
+            [class.is-invalid]="formSubmitted && !requester.trim()"
+            required
+          />
+          <div *ngIf="formSubmitted && !requester.trim()" class="invalid-feedback">
+            Requester is required.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Line Items Section -->
+    <div class="form-section">
+      <div class="section-header-flex">
+        <div>
+          <h2 class="section-title">Line Items <span class="required">*</span></h2>
+          <p class="section-subtitle">Add items with quantity and price. At least one line item is required.</p>
+        </div>
+        <button type="button" class="btn btn-outline-primary btn-sm" (click)="addLineItem()">
+          + Add Line Item
+        </button>
+      </div>
+
+      <!-- Line items list / table -->
+      <div class="line-items-container">
+        <div class="line-item-header">
+          <div class="col-desc">Description <span class="required">*</span></div>
+          <div class="col-qty">Quantity <span class="required">*</span></div>
+          <div class="col-price">Price (₹) <span class="required">*</span></div>
+          <div class="col-total">Line Total</div>
+          <div class="col-action"></div>
+        </div>
+
+        <div *ngFor="let item of lineItems; let i = index" class="line-item-row">
+          <!-- Description -->
+          <div class="col-desc">
+            <input 
+              type="text" 
+              class="form-control" 
+              placeholder="e.g. Dell Monitor 27-inch" 
+              [(ngModel)]="item.description" 
+              [name]="'desc_' + i"
+              [class.is-invalid]="formSubmitted && !item.description.trim()"
+              required
+            />
+            <div *ngIf="formSubmitted && !item.description.trim()" class="invalid-feedback">
+              Description is required.
+            </div>
+          </div>
+
+          <!-- Quantity -->
+          <div class="col-qty">
+            <input 
+              type="number" 
+              class="form-control text-right" 
+              placeholder="1" 
+              min="1" 
+              step="1"
+              [(ngModel)]="item.quantity" 
+              [name]="'qty_' + i"
+              [class.is-invalid]="formSubmitted && (!item.quantity || item.quantity <= 0)"
+              required
+            />
+            <div *ngIf="formSubmitted && (!item.quantity || item.quantity <= 0)" class="invalid-feedback">
+              Quantity must be greater than 0.
+            </div>
+          </div>
+
+          <!-- Price -->
+          <div class="col-price">
+            <input 
+              type="number" 
+              class="form-control text-right" 
+              placeholder="0.00" 
+              min="0.01" 
+              step="0.01"
+              [(ngModel)]="item.price" 
+              [name]="'price_' + i"
+              [class.is-invalid]="formSubmitted && (!item.price || item.price <= 0)"
+              required
+            />
+            <div *ngIf="formSubmitted && (!item.price || item.price <= 0)" class="invalid-feedback">
+              Price must be greater than 0.
+            </div>
+          </div>
+
+          <!-- Line Total -->
+          <div class="col-total line-total-display">
+            ₹{{ getLineTotal(item) | number:'1.2-2' }}
+          </div>
+
+          <!-- Remove Action -->
+          <div class="col-action">
+            <button 
+              type="button" 
+              class="btn-icon-danger" 
+              (click)="removeLineItem(i)" 
+              [disabled]="lineItems.length <= 1"
+              title="{{ lineItems.length <= 1 ? 'At least one line item is required' : 'Remove item' }}">
+              ✕
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Grand Total Bar -->
+      <div class="grand-total-bar">
+        <span class="grand-total-label">Grand Total:</span>
+        <span class="grand-total-value">₹{{ grandTotal | number:'1.2-2' }}</span>
+      </div>
+    </div>
+
+    <!-- Form Actions Footer -->
+    <div class="form-footer">
+      <a [routerLink]="isEditMode && requestId ? ['/requests', requestId] : ['/requests']" class="btn btn-secondary">
+        Cancel
+      </a>
+      <button 
+        type="submit" 
+        class="btn btn-primary" 
+        [disabled]="isSaving || (formSubmitted && !isFormValid)">
+        <span *ngIf="isSaving" class="spinner-inline"></span>
+        {{ isSaving ? (isEditMode ? 'Updating Request...' : 'Creating Request...') : (isEditMode ? 'Save Changes' : 'Save Request') }}
+      </button>
+    </div>
+  </form>
+</div>

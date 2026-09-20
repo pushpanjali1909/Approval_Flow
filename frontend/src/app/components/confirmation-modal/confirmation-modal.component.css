@@ -1,0 +1,107 @@
+.modal-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(13, 23, 44, 0.62);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1050;
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  animation: fadeIn 0.18s ease-out;
+}
+
+.modal-dialog {
+  background: rgba(255, 255, 255, 0.97);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-radius: 14px;
+  width: 90%;
+  max-width: 490px;
+  box-shadow: 0 24px 48px -12px rgba(25, 50, 90, 0.25), 0 8px 16px -4px rgba(25, 50, 90, 0.1);
+  border: 1px solid rgba(194, 214, 242, 0.9);
+  overflow: hidden;
+  animation: slideDown 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.35rem 1.65rem;
+  border-bottom: 1px solid rgba(194, 214, 242, 0.6);
+  background: linear-gradient(180deg, rgba(235, 244, 254, 0.8) 0%, rgba(255, 255, 255, 0.9) 100%);
+}
+
+.modal-title {
+  margin: 0;
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: #0b1a36;
+}
+
+.btn-close {
+  background: transparent;
+  border: none;
+  font-size: 1.5rem;
+  line-height: 1;
+  color: #8da6c6;
+  cursor: pointer;
+  padding: 0;
+  transition: all 0.15s;
+}
+
+.btn-close:hover {
+  color: #0b1a36;
+}
+
+.modal-body {
+  padding: 1.65rem;
+}
+
+.modal-message {
+  margin: 0;
+  color: #3b5275;
+  font-size: 0.98rem;
+  line-height: 1.55;
+  font-weight: 500;
+}
+
+.modal-footer {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.85rem;
+  padding: 1.15rem 1.65rem;
+  background-color: rgba(240, 247, 255, 0.9);
+  border-top: 1px solid rgba(194, 214, 242, 0.6);
+}
+
+.spinner-inline {
+  display: inline-block;
+  width: 0.85rem;
+  height: 0.85rem;
+  border: 2px solid currentColor;
+  border-right-color: transparent;
+  border-radius: 50%;
+  animation: spin 0.75s linear infinite;
+  margin-right: 0.4rem;
+  vertical-align: middle;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideDown {
+  from { transform: translateY(-12px) scale(0.98); opacity: 0; }
+  to { transform: translateY(0) scale(1); opacity: 1; }
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}

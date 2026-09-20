@@ -1,0 +1,154 @@
+<div class="page-container">
+  <!-- Page Header -->
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">Approval Requests</h1>
+      <p class="page-subtitle">Manage and track your organization's purchase and approval requests.</p>
+    </div>
+    <a routerLink="/requests/create" class="btn btn-primary create-btn">
+      <span class="btn-icon">+</span> Create Request
+    </a>
+  </div>
+
+  <!-- Error Banner -->
+  <div *ngIf="errorMessage" class="alert alert-danger">
+    <span>{{ errorMessage }}</span>
+    <button type="button" class="alert-retry-btn" (click)="loadRequests()">Retry</button>
+  </div>
+
+  <!-- Filters Bar -->
+  <div class="filters-card">
+    <div class="search-input-wrapper">
+      <span class="search-icon">🔍</span>
+      <input 
+        type="text" 
+        class="form-control search-input" 
+        placeholder="Search by title..." 
+        [(ngModel)]="searchTerm"
+        (input)="onSearchChange()"
+      />
+    </div>
+
+    <div class="status-filter-wrapper">
+      <label for="statusFilter" class="filter-label">Status:</label>
+      <select 
+        id="statusFilter" 
+        class="form-select" 
+        [(ngModel)]="selectedStatus"
+        (change)="onStatusChange()">
+        <option *ngFor="let option of statusOptions" [value]="option">
+          {{ option }}
+        </option>
+      </select>
+    </div>
+  </div>
+
+  <!-- Main Content Card -->
+  <div class="table-card">
+    <!-- Loading State -->
+    <div *ngIf="isLoading" class="loading-state">
+      <div class="spinner"></div>
+      <p>Loading requests...</p>
+    </div>
+
+    <!-- Empty State -->
+    <div *ngIf="!isLoading && requests.length === 0" class="empty-state">
+      <div class="empty-icon">📋</div>
+      <h3 class="empty-title">No requests found.</h3>
+      <p class="empty-subtitle" *ngIf="searchTerm || selectedStatus !== 'All'">
+        No requests match your current filters. Try changing your search query or status filter.
+      </p>
+      <p class="empty-subtitle" *ngIf="!searchTerm && selectedStatus === 'All'">
+        Get started by creating your first approval request.
+      </p>
+      <a routerLink="/requests/create" class="btn btn-primary btn-sm mt-3">Create Request</a>
+    </div>
+
+    <!-- Requests Table -->
+    <div *ngIf="!isLoading && requests.length > 0" class="table-responsive">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Title</th>
+            <th>Requester</th>
+            <th>Total</th>
+            <th>Status</th>
+            <th>Created Date</th>
+            <th class="text-right">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let req of requests">
+            <td class="cell-id">
+              <a [routerLink]="['/requests', req.id]" class="id-link">{{ req.id }}</a>
+            </td>
+            <td class="cell-title">
+              <span class="font-medium text-dark">{{ req.title }}</span>
+            </td>
+            <td>{{ req.requester }}</td>
+            <td class="cell-total font-semibold">
+              ₹{{ req.grandTotal | number:'1.2-2' }}
+            </td>
+            <td>
+              <span class="badge" [ngClass]="getStatusBadgeClass(req.status)">
+                {{ req.status }}
+              </span>
+            </td>
+            <td class="cell-date">
+              {{ req.createdAt | date:'MMM d, y, h:mm a' }}
+            </td>
+            <td class="text-right cell-actions">
+              <div class="action-btn-group">
+                <a [routerLink]="['/requests', req.id]" class="btn btn-outline-secondary btn-xs" title="View Details">
+                  View
+                </a>
+                <a 
+                  *ngIf="req.status === 'Editable'" 
+                  [routerLink]="['/requests', req.id, 'edit']" 
+                  class="btn btn-outline-primary btn-xs" 
+                  title="Edit Request">
+                  Edit
+                </a>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Pagination Footer -->
+    <div *ngIf="!isLoading && requests.length > 0" class="pagination-footer">
+      <div class="pagination-info">
+        Showing {{ startIndex }}–{{ endIndex }} of {{ pagination.totalItems }} requests
+      </div>
+
+      <div class="pagination-controls" *ngIf="pagination.totalPages > 1">
+        <button 
+          type="button" 
+          class="btn-page" 
+          [disabled]="pagination.page <= 1"
+          (click)="goToPage(pagination.page - 1)">
+          Previous
+        </button>
+
+        <button 
+          *ngFor="let p of getPageNumbers()" 
+          type="button" 
+          class="btn-page" 
+          [class.active]="p === pagination.page"
+          (click)="goToPage(p)">
+          {{ p }}
+        </button>
+
+        <button 
+          type="button" 
+          class="btn-page" 
+          [disabled]="pagination.page >= pagination.totalPages"
+          (click)="goToPage(pagination.page + 1)">
+          Next
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

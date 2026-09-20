@@ -1,0 +1,154 @@
+<div class="page-container">
+  <!-- Back Nav -->
+  <div class="header-nav">
+    <a routerLink="/requests" class="back-link">← Back to Requests</a>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="isLoading" class="loading-state">
+    <div class="spinner"></div>
+    <p>Loading request details...</p>
+  </div>
+
+  <!-- Notifications -->
+  <div *ngIf="errorMessage" class="alert alert-danger">
+    {{ errorMessage }}
+  </div>
+  <div *ngIf="successMessage" class="alert alert-success">
+    {{ successMessage }}
+  </div>
+
+  <!-- Request Content -->
+  <div *ngIf="!isLoading && request" class="detail-layout">
+
+    <!-- Top Card: Overview & Actions -->
+    <div class="detail-header-card">
+      <div class="header-main">
+        <div class="header-titles">
+          <div class="header-id-badge">
+            <span class="id-tag">{{ request.id }}</span>
+            <span class="badge" [ngClass]="getStatusBadgeClass(request.status)">
+              {{ request.status }}
+            </span>
+          </div>
+          <h1 class="request-title">{{ request.title }}</h1>
+        </div>
+
+        <!-- Action Buttons Based on Lifecycle Status -->
+        <div class="action-buttons-wrapper">
+          <!-- Status: Editable -->
+          <ng-container *ngIf="request.status === 'Editable'">
+            <a [routerLink]="['/requests', request.id, 'edit']" class="btn btn-outline-secondary">
+              Edit Request
+            </a>
+            <button 
+              type="button" 
+              class="btn btn-primary" 
+              [disabled]="isActionLoading"
+              (click)="openSubmitConfirmation()">
+              Submit for Review
+            </button>
+          </ng-container>
+
+          <!-- Status: Submitted -->
+          <ng-container *ngIf="request.status === 'Submitted'">
+            <button 
+              type="button" 
+              class="btn btn-danger" 
+              [disabled]="isActionLoading"
+              (click)="openRejectConfirmation()">
+              Reject
+            </button>
+            <button 
+              type="button" 
+              class="btn btn-success" 
+              [disabled]="isActionLoading"
+              (click)="openApproveConfirmation()">
+              Approve
+            </button>
+          </ng-container>
+
+          <!-- Status: Approved / Rejected -->
+          <ng-container *ngIf="request.status === 'Approved' || request.status === 'Rejected'">
+            <div class="status-locked-indicator">
+              <span class="lock-icon">🔒</span>
+              <span>This request is finalized and cannot be modified.</span>
+            </div>
+          </ng-container>
+        </div>
+      </div>
+
+      <!-- Metadata Grid -->
+      <div class="metadata-grid">
+        <div class="meta-item">
+          <span class="meta-label">Requester</span>
+          <span class="meta-value">{{ request.requester }}</span>
+        </div>
+        <div class="meta-item">
+          <span class="meta-label">Created Date</span>
+          <span class="meta-value">{{ request.createdAt | date:'MMM d, y, h:mm a' }}</span>
+        </div>
+        <div class="meta-item">
+          <span class="meta-label">Last Updated</span>
+          <span class="meta-value">{{ request.updatedAt | date:'MMM d, y, h:mm a' }}</span>
+        </div>
+        <div class="meta-item">
+          <span class="meta-label">Lifecycle Status</span>
+          <span class="meta-value font-semibold">{{ request.status }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Line Items Card -->
+    <div class="items-card">
+      <div class="items-card-header">
+        <h2 class="items-title">Line Items</h2>
+        <span class="items-count">{{ request.lineItems.length }} {{ request.lineItems.length === 1 ? 'item' : 'items' }}</span>
+      </div>
+
+      <div class="table-responsive">
+        <table class="detail-table">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Description</th>
+              <th class="text-right">Quantity</th>
+              <th class="text-right">Price</th>
+              <th class="text-right">Total</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let item of request.lineItems; let i = index">
+              <td class="cell-index">{{ i + 1 }}</td>
+              <td class="cell-desc">{{ item.description }}</td>
+              <td class="text-right cell-qty">{{ item.quantity }}</td>
+              <td class="text-right cell-price">₹{{ item.price | number:'1.2-2' }}</td>
+              <td class="text-right cell-total font-semibold">₹{{ item.total | number:'1.2-2' }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Grand Total Footer -->
+      <div class="grand-total-summary">
+        <div class="total-row">
+          <span class="total-label">Grand Total:</span>
+          <span class="total-amount">₹{{ request.grandTotal | number:'1.2-2' }}</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Confirmation Modal Dialog -->
+  <app-confirmation-modal
+    [isOpen]="isModalOpen"
+    [title]="modalTitle"
+    [message]="modalMessage"
+    [confirmText]="modalConfirmText"
+    [confirmButtonClass]="modalConfirmClass"
+    [isLoading]="isActionLoading"
+    (confirmed)="onModalConfirm()"
+    (cancelled)="onModalCancel()">
+  </app-confirmation-modal>
+</div>

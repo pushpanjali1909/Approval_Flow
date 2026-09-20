@@ -1,0 +1,318 @@
+.page-container {
+  max-width: 1020px;
+  margin: 0 auto;
+  padding: 2.25rem 1.5rem;
+}
+
+.header-nav {
+  margin-bottom: 1.25rem;
+}
+
+.back-link {
+  color: #3b5a82;
+  text-decoration: none;
+  font-size: 0.92rem;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  transition: all 0.15s;
+  background: rgba(255, 255, 255, 0.6);
+  padding: 0.35rem 0.75rem;
+  border-radius: 7px;
+  border: 1px solid rgba(194, 214, 242, 0.6);
+}
+
+.back-link:hover {
+  color: #1d4ed8;
+  background: rgba(255, 255, 255, 0.95);
+  border-color: #8daed8;
+  transform: translateX(-2px);
+}
+
+.detail-layout {
+  display: flex;
+  flex-direction: column;
+  gap: 1.65rem;
+}
+
+/* Detail Header Card */
+.detail-header-card {
+  background: rgba(255, 255, 255, 0.94);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border-radius: 14px;
+  border: 1px solid rgba(194, 214, 242, 0.85);
+  box-shadow: 0 12px 32px -4px rgba(35, 65, 110, 0.09), 0 4px 10px -2px rgba(35, 65, 110, 0.04);
+  padding: 1.85rem;
+}
+
+.header-main {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid rgba(194, 214, 242, 0.5);
+}
+
+.header-titles {
+  flex: 1;
+  min-width: 280px;
+}
+
+.header-id-badge {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 0.65rem;
+}
+
+.id-tag {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: #1d4ed8;
+  background-color: rgba(194, 214, 242, 0.4);
+  padding: 0.25rem 0.65rem;
+  border-radius: 6px;
+  border: 1px solid rgba(163, 195, 234, 0.8);
+}
+
+.request-title {
+  font-size: 1.85rem;
+  font-weight: 800;
+  color: #0b1a36;
+  margin: 0;
+  line-height: 1.3;
+  letter-spacing: -0.02em;
+}
+
+.action-buttons-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.status-locked-indicator {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: #486184;
+  font-size: 0.9rem;
+  font-weight: 600;
+  background-color: rgba(235, 244, 254, 0.85);
+  padding: 0.5rem 0.95rem;
+  border-radius: 8px;
+  border: 1px solid rgba(194, 214, 242, 0.85);
+}
+
+.lock-icon {
+  font-size: 1rem;
+}
+
+/* Metadata Grid */
+.metadata-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1.35rem;
+  padding-top: 1.5rem;
+}
+
+.meta-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.meta-label {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: #556e91;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.meta-value {
+  font-size: 0.98rem;
+  color: #1e3352;
+  font-weight: 500;
+}
+
+/* Items Card */
+.items-card {
+  background: rgba(255, 255, 255, 0.94);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border-radius: 14px;
+  border: 1px solid rgba(194, 214, 242, 0.85);
+  box-shadow: 0 12px 32px -4px rgba(35, 65, 110, 0.09), 0 4px 10px -2px rgba(35, 65, 110, 0.04);
+  overflow: hidden;
+}
+
+.items-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.25rem 1.75rem;
+  background: linear-gradient(180deg, #e4effc 0%, #d8e7f8 100%);
+  border-bottom: 2px solid #b4cde8;
+}
+
+.items-title {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: #0e2246;
+  margin: 0;
+}
+
+.items-count {
+  font-size: 0.85rem;
+  color: #1d4ed8;
+  background: rgba(255, 255, 255, 0.8);
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  font-weight: 600;
+  border: 1px solid rgba(194, 214, 242, 0.75);
+}
+
+.detail-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.detail-table th {
+  background: rgba(245, 250, 255, 0.75);
+  color: #3b5a82;
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 0.95rem 1.75rem;
+  border-bottom: 1px solid rgba(194, 214, 242, 0.6);
+}
+
+.detail-table td {
+  padding: 1.1rem 1.75rem;
+  border-bottom: 1px solid rgba(194, 214, 242, 0.45);
+  font-size: 0.94rem;
+  color: #243b5e;
+  vertical-align: middle;
+}
+
+.detail-table tr:hover td {
+  background-color: rgba(226, 239, 255, 0.55);
+}
+
+.cell-index {
+  color: #8da6c6;
+  font-size: 0.88rem;
+  width: 44px;
+}
+
+.cell-desc {
+  font-weight: 600;
+  color: #0f172a;
+}
+
+.cell-qty, .cell-price, .cell-total {
+  font-variant-numeric: tabular-nums;
+}
+
+.cell-total {
+  color: #0b1a36;
+}
+
+/* Grand Total Summary */
+.grand-total-summary {
+  display: flex;
+  justify-content: flex-end;
+  padding: 1.5rem 1.85rem;
+  background: linear-gradient(135deg, rgba(224, 236, 253, 0.95) 0%, rgba(194, 214, 242, 0.85) 100%);
+  border-top: 1px solid #a8c7ed;
+  box-shadow: inset 0 1px 2px rgba(255, 255, 255, 0.6);
+}
+
+.total-row {
+  display: flex;
+  align-items: baseline;
+  gap: 1.5rem;
+}
+
+.total-label {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: #173663;
+}
+
+.total-amount {
+  font-size: 1.85rem;
+  font-weight: 800;
+  color: #091b38;
+  letter-spacing: -0.025em;
+}
+
+/* Status Badges */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.3rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  box-shadow: 0 1px 3px rgba(35, 65, 110, 0.08);
+}
+
+.badge-editable {
+  background-color: #fef3c7;
+  color: #92400e;
+  border: 1px solid #fde68a;
+}
+
+.badge-submitted {
+  background-color: #dbeafe;
+  color: #1d4ed8;
+  border: 1px solid #b9d5f7;
+  box-shadow: 0 2px 6px rgba(37, 99, 235, 0.15);
+}
+
+.badge-approved {
+  background-color: #dcfce7;
+  color: #166534;
+  border: 1px solid #bbf7d0;
+  box-shadow: 0 2px 6px rgba(22, 163, 74, 0.15);
+}
+
+.badge-rejected {
+  background-color: #fee2e2;
+  color: #991b1b;
+  border: 1px solid #fecaca;
+  box-shadow: 0 2px 6px rgba(220, 38, 38, 0.15);
+}
+
+.badge-default {
+  background-color: #f1f5f9;
+  color: #475569;
+}
+
+.loading-state {
+  text-align: center;
+  padding: 3.8rem 1.5rem;
+}
+
+.spinner {
+  display: inline-block;
+  width: 2.25rem;
+  height: 2.25rem;
+  border: 3px solid rgba(194, 214, 242, 0.6);
+  border-top-color: #2563eb;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  margin-bottom: 0.85rem;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
