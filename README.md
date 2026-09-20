@@ -1,145 +1,188 @@
-# Approval Request Management System
+# ✦ ApprovalFlow — Approval Request Management System
 
-A complete, full-stack Approval Request Management Application built with **Node.js + Express** (backend) and **Angular 19** (frontend), utilizing strictly in-memory storage and standard REST APIs.
+<div align="center">
 
----
+  [![Live App](https://img.shields.io/badge/🚀_Live_Demo-Vercel-black?style=for-the-badge&logo=vercel)](https://approval-flow-sooty.vercel.app/requests)
+  [![Backend API](https://img.shields.io/badge/⚡_Backend_API-Render-46E3B7?style=for-the-badge&logo=render)](https://approval-flow-twdt.onrender.com/api/health)
+  [![GitHub Repo](https://img.shields.io/badge/GitHub-Repository-181717?style=for-the-badge&logo=github)](https://github.com/pushpanjali1909/Approval_Flow)
+  [![Tests Passing](https://img.shields.io/badge/Tests-29%2F29_Passing-success?style=for-the-badge&logo=jest)](https://github.com/pushpanjali1909/Approval_Flow)
 
-## Table of Contents
+  <br/>
 
-1. [Project Overview](#project-overview)
-2. [Tech Stack](#tech-stack)
-3. [Architecture & Project Structure](#architecture--project-structure)
-4. [Business Rules & Lifecycle State Machine](#business-rules--lifecycle-state-machine)
-5. [REST API Documentation](#rest-api-documentation)
-6. [Installation & Setup](#installation--setup)
-7. [Running the Application](#running-the-application)
-8. [Automated Testing](#automated-testing)
+  **A modern, production-ready Full-Stack Approval Request Application built with Node.js + Express, Angular 19, and in-memory storage.**
 
----
+  [Explore Live App](https://approval-flow-sooty.vercel.app/requests) · [API Documentation](#-rest-api-documentation) · [Report Bug](https://github.com/pushpanjali1909/Approval_Flow/issues)
 
-## Project Overview
-
-The Approval Request Management Application enables employees and reviewers to handle internal purchase/budget approval workflows with strict server-side validation and state machine constraints.
-
-### Core Capabilities:
-- **Create Approval Requests**: Provide a title, requester name, and multiple line items (description, quantity, price).
-- **Automated Grand Total Calculations**: Line totals and grand totals are calculated securely on the server (`quantity × price`, sum of line totals).
-- **Lifecycle Management**: Strict transition from `Editable` → `Submitted` → `Approved` or `Rejected`.
-- **Locking on Submission**: Once submitted, requests are locked and cannot be edited.
-- **Reviewer Actions**: Approve or reject submitted requests with confirmation dialogs.
-- **Search & Filtering**: Search requests by title, filter by status, with clean pagination controls.
-- **Error Handling & Feedback**: Centralized HTTP error handling, friendly user notifications, and loading indicators.
+</div>
 
 ---
 
-## Tech Stack
+## 🌐 Live Deployments
 
-- **Backend**: Node.js, Express.js
-- **Frontend**: Angular 19 (TypeScript, Standalone Components, Reactive UI)
-- **Data Storage**: In-memory store (`requests = []`), no external database
-- **API Style**: RESTful JSON APIs with CORS support
-- **Testing**: Jest & Supertest for backend business logic and API testing
+| Service | Platform | Live URL | Status |
+| :--- | :--- | :--- | :--- |
+| **Frontend Web App** | **Vercel** | [https://approval-flow-sooty.vercel.app/requests](https://approval-flow-sooty.vercel.app/requests) | ![Online](https://img.shields.io/badge/Online-brightgreen?style=flat-square) |
+| **Backend REST API** | **Render** | [https://approval-flow-twdt.onrender.com/api/health](https://approval-flow-twdt.onrender.com/api/health) | ![Online](https://img.shields.io/badge/Online-brightgreen?style=flat-square) |
+| **GitHub Codebase** | **GitHub** | [https://github.com/pushpanjali1909/Approval_Flow](https://github.com/pushpanjali1909/Approval_Flow) | ![Public](https://img.shields.io/badge/Public-blue?style=flat-square) |
 
 ---
 
-## Architecture & Project Structure
+## 🎨 UI/UX Design System
+
+The application features a tailored **Celestial Periwinkle (`#C2D6F2`)** design language created with modern SaaS design standards:
+- **Ambient Mesh Gradient Background**: Smooth multi-stop gradient based on `#C2D6F2` providing an airy, premium look.
+- **Glassmorphism Components**: Translucent frosted panels (`backdrop-filter: blur(16px)`) with delicate periwinkle borders and elevation shadows.
+- **Visual Status Hierarchy**:
+  - `Editable`: Warm Honey Amber (`#fef3c7`)
+  - `Submitted`: Celestial Soft Blue (`#dbeafe`)
+  - `Approved`: Emerald Mint (`#dcfce7`)
+  - `Rejected`: Rose Blush (`#fee2e2`)
+- **Responsive Layout**: Designed for optimal viewing across desktop, tablet, and mobile devices.
+
+---
+
+## ⚡ Key Capabilities
+
+- **Strict Server-Side State Machine**:
+  - Enforces `Editable` → `Submitted` → `Approved` / `Rejected`.
+  - Disallowed transitions and unauthorized edits trigger HTTP `409 Conflict`.
+- **Server Calculation Integrity**:
+  - Automatically calculates line item totals ($\text{quantity} \times \text{price}$) and grand total ($\sum \text{line totals}$).
+  - Client-supplied totals are strictly untrusted and recalculated on the server.
+- **Interactive Forms & Live Calculations**:
+  - Dynamic line items (add/remove) with real-time total updates.
+  - Validation guards ensuring title, requester, non-empty line items, and quantities/prices $> 0$.
+- **Data Filtering & Pagination**:
+  - Live search by request title.
+  - Status filter dropdown (`All`, `Editable`, `Submitted`, `Approved`, `Rejected`).
+  - Pagination controls (`Previous`, page numbers, `Next`) with item range indicators.
+- **Contextual Actions & Confirmation Dialogs**:
+  - Only allowed action buttons are visible based on current lifecycle status.
+  - Confirmation modals before `Submit`, `Approve`, and `Reject` to prevent accidental actions.
+
+---
+
+## 🔄 State Machine & Business Rules
+
+```mermaid
+stateDiagram-v2
+    [*] --> Editable : Create Request (POST /api/requests)
+    
+    Editable --> Submitted : Submit for Review (POST /api/requests/:id/submit)
+    Editable --> Editable : Edit Request (PUT /api/requests/:id)
+    
+    Submitted --> Approved : Reviewer Approves (POST /api/requests/:id/approve)
+    Submitted --> Rejected : Reviewer Rejects (POST /api/requests/:id/reject)
+    
+    Approved --> [*] : Locked (No further transitions)
+    Rejected --> [*] : Locked (No further transitions)
+```
+
+### Transition Rules Matrix
+
+| Current State | Action | Target State | Result | HTTP Code |
+| :--- | :--- | :--- | :--- | :--- |
+| **Editable** | Update (`PUT`) | Editable | ✅ Allowed | `200 OK` |
+| **Editable** | Submit | Submitted | ✅ Allowed | `200 OK` |
+| **Editable** | Approve | Approved | ❌ Rejected | `409 Conflict` |
+| **Editable** | Reject | Rejected | ❌ Rejected | `409 Conflict` |
+| **Submitted** | Update (`PUT`) | — | ❌ Locked | `409 Conflict` |
+| **Submitted** | Submit | — | ❌ Already Submitted | `409 Conflict` |
+| **Submitted** | Approve | Approved | ✅ Allowed | `200 OK` |
+| **Submitted** | Reject | Rejected | ✅ Allowed | `200 OK` |
+| **Approved** | Any Action | — | ❌ Finalized | `409 Conflict` |
+| **Rejected** | Any Action | — | ❌ Finalized | `409 Conflict` |
+
+---
+
+## 🛠️ Tech Stack
 
 ```
-.
+Frontend:              Backend:               DevOps & Storage:
+├── Angular 19         ├── Node.js            ├── In-Memory Store (requests = [])
+├── TypeScript         ├── Express.js         ├── Vercel (Frontend Hosting)
+├── Standalone UI      ├── RESTful APIs       ├── Render (Backend Hosting)
+└── CSS3 / Glassmorphism ├── Jest & Supertest  └── GitHub Version Control
+```
+
+---
+
+## 📁 Architecture & Project Structure
+
+```
+Approval_Flow/
 ├── backend/
 │   ├── src/
 │   │   ├── controllers/
-│   │   │   └── requestController.js    # Express route handlers
+│   │   │   └── requestController.js    # Express route controller handlers
 │   │   ├── routes/
 │   │   │   └── requestRoutes.js        # REST endpoint mapping
 │   │   ├── services/
-│   │   │   └── requestService.js       # Core business logic & state machine
+│   │   │   └── requestService.js       # Business logic & state machine
 │   │   ├── models/
-│   │   │   └── requestModel.js         # Domain constants and status enums
+│   │   │   └── requestModel.js         # Constants and status enums
 │   │   ├── middleware/
-│   │   │   ├── errorHandler.js         # Global error and 404 handling
+│   │   │   ├── errorHandler.js         # Centralized error handling
 │   │   │   └── validation.js           # Request payload validations
 │   │   ├── utils/
 │   │   │   ├── idGenerator.js          # Sequential REQ-XXX / LI-X generator
 │   │   │   └── calculations.js         # Safe numeric financial math
 │   │   ├── data/
 │   │   │   └── store.js                # In-memory storage layer
-│   │   └── server.js                   # App setup and CORS configuration
+│   │   └── server.js                   # Express server & CORS configuration
 │   ├── tests/
-│   │   └── requests.test.js            # 29 automated test cases
+│   │   └── requests.test.js            # 29 automated test cases (Jest)
 │   └── package.json
 │
 ├── frontend/
 │   ├── src/
 │   │   ├── app/
 │   │   │   ├── models/
-│   │   │   │   └── request.model.ts    # TypeScript interfaces and types
+│   │   │   │   └── request.model.ts    # TypeScript interfaces
 │   │   │   ├── services/
-│   │   │   │   └── request.service.ts  # HTTP client service and error handling
+│   │   │   │   └── request.service.ts  # HTTP client service & error mapper
 │   │   │   ├── components/
 │   │   │   │   ├── request-list/       # List, search, filter, pagination
-│   │   │   │   ├── request-form/       # Create & edit requests with live calculations
-│   │   │   │   ├── request-detail/     # Details view and lifecycle action buttons
+│   │   │   │   ├── request-form/       # Create & edit requests with live math
+│   │   │   │   ├── request-detail/     # Details view & contextual actions
 │   │   │   │   └── confirmation-modal/ # Reusable confirmation dialog
 │   │   │   ├── app.routes.ts           # Angular route configurations
-│   │   │   ├── app.component.ts        # Shell layout and top navigation
-│   │   │   └── app.config.ts           # Application providers (HttpClient, Router)
+│   │   │   ├── app.component.ts        # Shell layout & navbar
+│   │   │   └── app.config.ts           # Providers (HttpClient, Router)
 │   │   ├── environments/
-│   │   │   └── environment.ts          # Configurable API base URL
-│   │   ├── index.html
-│   │   └── styles.css                  # Global design system
+│   │   │   ├── environment.ts          # Local dev API configuration
+│   │   │   └── environment.prod.ts     # Live Render production API configuration
+│   │   ├── index.html                  # HTML entry point with app title
+│   │   └── styles.css                  # Global design system & theme
 │   ├── angular.json
+│   ├── vercel.json                     # SPA routing rewrites for Vercel
 │   └── package.json
 │
+├── vercel.json                         # Monorepo Vercel configuration
+├── .gitignore
 └── README.md
 ```
 
 ---
 
-## Business Rules & Lifecycle State Machine
+## 📖 REST API Documentation
 
-### 1. Request Lifecycle
+Base Production URL: `https://approval-flow-twdt.onrender.com/api`  
+Base Local URL: `http://localhost:3000/api`
 
-```
-Editable ──(submit)──> Submitted ──(approve)──> Approved
-                                 └──(reject)───> Rejected
-```
+### 1. Health Check
+- **`GET /health`**
+- **Response `200 OK`**:
+  ```json
+  {
+    "status": "UP",
+    "timestamp": "2026-09-20T06:25:27.215Z"
+  }
+  ```
 
-**Allowed Transitions:**
-- `Editable` → `Submitted` (via `POST /api/requests/:id/submit`)
-- `Submitted` → `Approved` (via `POST /api/requests/:id/approve`)
-- `Submitted` → `Rejected` (via `POST /api/requests/:id/reject`)
-
-**Strictly Forbidden Transitions (HTTP 409 Conflict):**
-- `Editable` → `Approved` ❌
-- `Editable` → `Rejected` ❌
-- `Submitted` → `Submitted` ❌
-- `Approved` → `Rejected` ❌
-- `Approved` → `Approved` ❌
-- `Rejected` → `Approved` ❌
-- `Rejected` → `Rejected` ❌
-- `Rejected` → `Submitted` ❌
-
-### 2. Editing Rules
-- Only requests in `Editable` status can be updated.
-- Once submitted, requests become permanently locked.
-- Any attempt to update (`PUT /api/requests/:id`) a request in `Submitted`, `Approved`, or `Rejected` state returns `409 Conflict`.
-- The frontend cannot tamper with `status`, `grandTotal`, `createdAt`, or `updatedAt` through update payloads.
-
-### 3. Server-Side Calculations
-- $\text{Line Total} = \text{quantity} \times \text{price}$
-- $\text{Grand Total} = \sum (\text{Line Totals})$
-- Grand total and line totals sent by the client are strictly ignored and recalculated securely on the server.
-
----
-
-## REST API Documentation
-
-Base URL: `http://localhost:3000/api`
-
-### 1. Create Request
-- **Endpoint**: `POST /api/requests`
-- **Request Body**:
+### 2. Create Request
+- **`POST /requests`**
+- **Payload**:
   ```json
   {
     "title": "Office Equipment",
@@ -150,7 +193,7 @@ Base URL: `http://localhost:3000/api`
     ]
   }
   ```
-- **Response**: `201 Created`
+- **Response `201 Created`**:
   ```json
   {
     "id": "REQ-001",
@@ -166,140 +209,129 @@ Base URL: `http://localhost:3000/api`
     "updatedAt": "2026-09-20T05:00:00.000Z"
   }
   ```
-- **Errors**: `400 Bad Request` if title, requester, or line items are invalid.
+- **Errors**: `400 Bad Request` with validation error details.
 
-### 2. Get Requests List
-- **Endpoint**: `GET /api/requests?search=office&status=Submitted&page=1&limit=10`
-- **Query Parameters**:
-  - `search`: Filter by request title (case-insensitive substring)
-  - `status`: Filter by status (`Editable`, `Submitted`, `Approved`, `Rejected`)
-  - `page`: Page number (default: 1)
-  - `limit`: Number of items per page (default: 10)
-- **Response**: `200 OK`
+### 3. List Requests (with Search, Status Filter & Pagination)
+- **`GET /requests?search=Office&status=Editable&page=1&limit=10`**
+- **Response `200 OK`**:
   ```json
   {
-    "data": [...],
+    "data": [ ... ],
     "pagination": {
       "page": 1,
       "limit": 10,
-      "totalItems": 25,
-      "totalPages": 3
+      "totalItems": 1,
+      "totalPages": 1
     }
   }
   ```
-- If no results match: Returns `data: []` with `totalItems: 0`, `totalPages: 0` (no error).
 
-### 3. Get Single Request
-- **Endpoint**: `GET /api/requests/:id`
-- **Response**: `200 OK` with full request details.
-- **Errors**: `404 Not Found` if request ID does not exist.
+### 4. Get Single Request
+- **`GET /requests/:id`**
+- **Response `200 OK`**: Complete request details.
+- **Errors**: `404 Not Found` if ID does not exist.
 
-### 4. Update Request
-- **Endpoint**: `PUT /api/requests/:id`
-- **Request Body**:
-  ```json
-  {
-    "title": "Updated Title",
-    "requester": "John Doe",
-    "lineItems": [
-      { "description": "Laptop Pro", "quantity": 2, "price": 60000 }
-    ]
-  }
-  ```
-- **Response**: `200 OK` with recalculated totals.
+### 5. Update Request
+- **`PUT /requests/:id`**
+- Only allowed when `status === 'Editable'`. Recalculates all totals.
 - **Errors**:
-  - `404 Not Found` if request does not exist.
-  - `409 Conflict` if request status is not `Editable`.
-  - `400 Bad Request` if payload validation fails.
+  - `409 Conflict`: If request is in `Submitted`, `Approved`, or `Rejected` status.
+  - `400 Bad Request`: If validation fails.
+  - `404 Not Found`: If ID does not exist.
 
-### 5. Submit Request
-- **Endpoint**: `POST /api/requests/:id/submit`
-- **Response**: `200 OK` (status updated to `Submitted`).
-- **Errors**:
-  - `409 Conflict` if request status is not `Editable`.
-  - `404 Not Found` if request does not exist.
-
-### 6. Approve Request
-- **Endpoint**: `POST /api/requests/:id/approve`
-- **Response**: `200 OK` (status updated to `Approved`).
-- **Errors**:
-  - `409 Conflict` if request status is not `Submitted`.
-  - `404 Not Found` if request does not exist.
-
-### 7. Reject Request
-- **Endpoint**: `POST /api/requests/:id/reject`
-- **Response**: `200 OK` (status updated to `Rejected`).
-- **Errors**:
-  - `409 Conflict` if request status is not `Submitted`.
-  - `404 Not Found` if request does not exist.
+### 6. Lifecycle Actions
+- **Submit**: `POST /requests/:id/submit` (Transitions `Editable` → `Submitted`)
+- **Approve**: `POST /requests/:id/approve` (Transitions `Submitted` → `Approved`)
+- **Reject**: `POST /requests/:id/reject` (Transitions `Submitted` → `Rejected`)
 
 ---
 
-## Installation & Setup
+## 🧪 Automated Testing
 
-### Prerequisites
-- Node.js (v18+)
-- npm (v9+)
+The backend includes a comprehensive Jest + Supertest test suite covering **100% of the core business rules and edge cases**.
 
-### 1. Install Backend Dependencies
-```bash
-cd backend
-npm install
-```
-
-### 2. Install Frontend Dependencies
-```bash
-cd frontend
-npm install
-```
-
----
-
-## Running the Application
-
-### 1. Start the Backend Server
-```bash
-cd backend
-npm start
-```
-> **Note for Windows PowerShell users**: If running in a directory path containing spaces (e.g. `Antigravity Project`), PowerShell's built-in `npm.ps1` wrapper may exit prematurely. Use `npm.cmd start` (or `node src/server.js`):
-> ```powershell
-> cd backend
-> npm.cmd start
-> ```
-The backend starts on: **http://localhost:3000**
-
-### 2. Start the Frontend Development Server
-```bash
-cd frontend
-npm start
-```
-> **Note for Windows PowerShell users**: Use `npm.cmd start` (or `npx ng serve`):
-> ```powershell
-> cd frontend
-> npm.cmd start
-> ```
-The frontend application opens on: **http://localhost:4200**
-
----
-
-## Automated Testing
-
-The backend includes a comprehensive test suite (29 tests) verifying every business rule, lifecycle constraint, validation edge case, and pagination logic using Jest and Supertest.
-
-To run the backend test suite:
 ```bash
 cd backend
 npm test
 ```
 
-### Test Coverage Highlights:
-- Request creation & input validation
-- Mandatory field validations (title, requester, line items)
-- Rejection of invalid quantities and prices ($\le 0$)
-- Server calculation integrity (tampered client grand total ignored)
-- State transitions (`Editable` → `Submitted` → `Approved` / `Rejected`)
-- Rejection of unauthorized transitions (409 Conflict)
-- Prevention of editing locked requests
-- Search, filter, and pagination
-- Graceful 404 handling for non-existent IDs
+### Test Suite Results:
+```text
+PASS tests/requests.test.js
+  Approval Request Backend API
+    1. Request Creation & Input Validation (POST /api/requests)
+      ✓ Should create a valid request with server-calculated totals
+      ✓ Should reject request without title (Case 1)
+      ✓ Should reject request with empty title (Case 1)
+      ✓ Should reject request without requester (Case 2)
+      ✓ Should reject request without line items or empty line items array (Case 3)
+      ✓ Should reject line item with missing description
+      ✓ Should reject invalid quantity (0, negative, non-number) (Case 4)
+      ✓ Should reject invalid price (0, negative, non-number) (Case 5)
+      ✓ Should ignore client-supplied grandTotal and enforce server calculation
+    2. State Transitions & Lifecycle Rules
+      ✓ Should successfully submit an Editable request (Editable -> Submitted)
+      ✓ Should reject submitting an already submitted request (Case 9: 409 Conflict)
+      ✓ Should approve a submitted request (Submitted -> Approved)
+      ✓ Should reject approving an Editable request (Case 7: 409 Conflict)
+      ✓ Should reject approving an already Approved request (Case 10: 409 Conflict)
+      ✓ Should reject approving a Rejected request (Case 12: 409 Conflict)
+      ✓ Should reject a submitted request (Submitted -> Rejected)
+      ✓ Should reject rejecting an Editable request (Case 8: 409 Conflict)
+      ✓ Should reject rejecting an already Rejected request (Case 11: 409 Conflict)
+      ✓ Should reject rejecting an already Approved request (409 Conflict)
+    3. Editing Rules (PUT /api/requests/:id)
+      ✓ Should allow editing an Editable request and recalculate totals
+      ✓ Should reject editing a Submitted request (Case 6: 409 Conflict)
+      ✓ Should reject editing an Approved request (409 Conflict)
+      ✓ Should reject editing a Rejected request (409 Conflict)
+    4. Retrieval, Search, Filter, Pagination, and Not Found Handling
+      ✓ Should paginate results properly with page and limit
+      ✓ Should search requests by title
+      ✓ Should filter requests by status
+      ✓ Should return empty array when search returns no results without server error (Case 14)
+      ✓ Should return 404 for non-existent request ID (Case 13)
+      ✓ Should get single request details successfully
+
+Test Suites: 1 passed, 1 total
+Tests:       29 passed, 29 total
+Snapshots:   0 total
+```
+
+---
+
+## 💻 Local Development Setup
+
+### Prerequisites
+- Node.js (v18+)
+- npm (v9+)
+
+### 1. Clone Repository
+```bash
+git clone https://github.com/pushpanjali1909/Approval_Flow.git
+cd Approval_Flow
+```
+
+### 2. Start Backend Server
+```bash
+cd backend
+npm install
+node src/server.js
+```
+*(Backend runs on `http://localhost:3000`)*
+
+### 3. Start Frontend App (In a new terminal)
+```bash
+cd frontend
+npm install
+npm.cmd start
+```
+*(Frontend runs on `http://localhost:4200`)*
+
+---
+
+<div align="center">
+
+  Crafted with care by **Pushpanjali Bajpai** · [GitHub](https://github.com/pushpanjali1909)
+
+</div>
